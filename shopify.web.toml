@@ -2,5 +2,7 @@ name = "remix"
 roles = ["frontend", "backend"]
 webhooks_path = "/webhooks"
 
+port=3000
+
 [commands]
-dev = "npx prisma generate && npx prisma migrate deploy && npm exec remix vite:dev"
+dev = "npm exec remix vite:dev -- --port 3000"

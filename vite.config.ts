@@ -1,6 +1,10 @@
-import { vitePlugin as remix } from "@remix-run/dev";
-import { defineConfig, type UserConfig } from "vite";
+import {
+  vitePlugin as remix,
+  cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
+} from "@remix-run/dev";
+import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { getLoadContext } from "./load-context";
 
 // Related: https://github.com/remix-run/remix/issues/2835#issuecomment-1144102176
 // Replace the HOST env var with SHOPIFY_APP_URL so that it doesn't break the remix server. The CLI will eventually
@@ -16,8 +20,8 @@ if (
 
 const host = new URL(process.env.SHOPIFY_APP_URL || "http://localhost")
   .hostname;
-
 let hmrConfig;
+
 if (host === "localhost") {
   hmrConfig = {
     protocol: "ws",
@@ -29,7 +33,7 @@ if (host === "localhost") {
   hmrConfig = {
     protocol: "wss",
     host: host,
-    port: parseInt(process.env.FRONTEND_PORT!) || 8002,
+    port: parseInt(process.env.FRONTEND_PORT) || 8002,
     clientPort: 443,
   };
 }
@@ -44,12 +48,10 @@ export default defineConfig({
     },
   },
   plugins: [
+    remixCloudflareDevProxy({ getLoadContext }),
     remix({
       ignoredRouteFiles: ["**/.*"],
     }),
     tsconfigPaths(),
   ],
-  build: {
-    assetsInlineLimit: 0,
-  },
-}) satisfies UserConfig;
+});
